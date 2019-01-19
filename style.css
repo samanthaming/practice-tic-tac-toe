@@ -14,11 +14,11 @@ body {
   flex-direction: column;
   align-items: center;
 }
-
+/* ==================
+ *  PAGE
+ * ================== */
 .cell {
-  /* width: 50px;
-  height: 50px; */
-  height: 50px;
+  height: 60px;
   border: 1px solid black;
 }
 .player1 {
@@ -32,16 +32,17 @@ body {
   height: 30px;
   display: inline-block
 }
-/* ==================
- *  PAGE
- * ================== */
- #container {
-  /* display: flex;
-  align-items: center;
-  flex-direction: column;
-  height: 100vh;
-  border: 1px solid red; */
+.game {
   display: grid;
   grid-template-columns: 80px 80px 80px;
-  /* grid-template-rows: 80px 80px 80px; */
+}
+.action {
+  margin-top: 30px;
+}
+.message {
+  display: flex;
+  align-items: center;
+}
+.message span:first-child {
+  margin-right: 5px;
 }

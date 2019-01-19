@@ -9,59 +9,100 @@ const wins = [
   [3,5,7],
 ];
 
-var vm = new Vue({
-  el: '#app',
-  data: {
-    win: '',
-    turn: 1,
-    cells: [
-      {id: 1, player: false},
-      {id: 2, player: false},
-      {id: 3, player: false},
-      {id: 4, player: false},
-      {id: 5, player: false},
-      {id: 6, player: false},
-      {id: 7, player: false},
-      {id: 8, player: false},
-      {id: 9, player: false},
-    ],
+function checkMatch(nums) {
+  return wins.some(win => {
+    return win.every(w => nums.includes(w));
+  });
+}
+
+Vue.component('cell', {
+  template: '#cell-template',
+  props: ['info', 'turn', 'resetCell', 'stopCell'],
+  data() {
+    return {
+      active: false,
+      player: '',
+    }
   },
   methods: {
-    onPress(id){
-      if(this.win) {
-        return
-      }
-
-      const selected = this.cells
-        .filter(cell => !cell.player)
-        .find(cell => cell.id === id);
-
-      if (!selected) {
+    clickCell() {
+      if(this.stopCell || this.active) {
         return;
       }
 
-      selected.player = this.turn;
+      this.active = true;
+      this.player = `player${this.turn}`;
+      this.$emit('bus-cell', this.info);
+    }
+  },
+  watch: {
+    resetCell(newValue, oldVal) {
+      /* This watcher gets triggered twice:
+        1. Parent's restart()
+        2. Parent's onCellChange()
+
+        When we click the restart button (trigger 1) we want to reset the cells. The newValue parameter will be `true`.
+
+        However, when we click the cell (trigger 2) thereafter, we don't want to activiate the reset in this function. The newValue parameter will be `false`, hence we have this check.
+      */
+      if(newValue) {
+        this.active = false;
+        this.player = '';
+      }
+    }
+  },
+})
+
+var vm = new Vue({
+  el: '#app',
+  data: {
+    isCellReset: false,
+    hasWin: false,
+    turn: 1,
+    player1: [],
+    player2: [],
+  },
+  computed: {
+    message() {
+      return this.hasWin ? 'Winner' : 'Turn';
+    }
+  },
+  methods: {
+    onCellChange(cellIndex) {
+      if(this.hasWin) {
+        return
+      }
+
+      if (this.turn === 1) {
+        this.player1.push(cellIndex);
+      } else {
+        this.player2.push(cellIndex)
+      }
+
+      this.isCellReset = false;
       this.checkWinner();
-    },
-    switchTurn() {
-      this.turn = this.turn === 1 ? 2 : 1;
+      this.updateGameStatus();
     },
     checkWinner() {
-      const selections= this.cells
-        .filter(cell => cell.player === this.turn)
-        .map(c => c.id).join('');
-
-      const hasWin = wins.filter(win => win.join('') === selections);
-
-      if(hasWin.length > 0) {
-        this.win = 'is the winner!';
+      if (this.turn === 1) {
+        this.hasWin = checkMatch(this.player1);
       } else {
-        this.switchTurn();
+        this.hasWin = checkMatch(this.player2);
       }
     },
-    restartGame() {
-      this.win = '',
-      this.cells.forEach(cell => cell.player = false);
-    }
+    updateGameStatus() {
+      if (!this.hasWin) {
+        this.turn = this.turn === 1 ? 2 : 1;
+      } else {
+        this.hasWin = true;
+      }
+    },
+    clickRestart() {
+      this.hasWin = false;
+      this.isCellReset = true;
+      this.turn = 1;
+      this.player1 = [];
+      this.player2 = [];
+    },
   }
 });
