@@ -8,32 +8,50 @@
   <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css" />
   <link rel="stylesheet" href="style.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.min.js"></script>
-  <title>Hello</title>
+  <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.16/vue.min.js"></script> -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.22/vue.js"></script>
+  <title>Tic Tac Toe</title>
 </head>
 
 <body>
-  <div id="app">
-  <h1>Tic Tac Toe</h1>
-  <!-- app -->
-  <div id="container">
+  <!-- template -->
+  <script
+    type="text/x-template"
+    id="cell-template"
+  >
     <div
-      v-for="cell in cells"
-      key="cell.id"
-      :class="['cell', `player${cell.player}`]"
-      v-on:click="onPress(cell.id)"
+      @click="clickCell"
+      :class="['cell', player]"
     >
-      {{cell.id}}
+      {{ info }}
     </div>
-  </div>
-  <div v-if="win">
-    <p>
-      <span :class="[`player${turn}`, 'win-box']"></span> {{ win }}
-    </p>
+  </script>
 
-    <button v-on:click="restartGame">Restart</button>
+  <!-- app -->
+  <div id="app">
+    <h1>Tic Tac Toe {{ hasWin }}</h1>
+    <div class="game">
+      <!-- v-bind shorthand > : -->
+      <!-- v-on shorthand > @ -->
+      <cell
+        v-for="index in 9"
+        :key="index"
+        :info="index"
+        :turn="turn"
+        :reset-cell="isCellReset"
+        :stop-cell="hasWin"
+        @bus-cell="onCellChange"
+      />
+    </div>
+
+    <section class="action">
+      <p class="message">
+        <span>{{ message }}</span>
+        <span :class="[`player${turn}`, 'win-box']"></span>
+      </p>
+      <button @click="clickRestart">Restart</button>
+    </section>
   </div>
-</div>
   <!-- JavaScript -->
   <script src="vue.js"></script>
 </body>
